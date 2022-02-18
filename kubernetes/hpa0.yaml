@@ -1,0 +1,31 @@
+apiVersion: v1
+items:
+- apiVersion: autoscaling/v1
+  kind: HorizontalPodAutoscaler
+  metadata:
+    annotations:
+      autoscaling.alpha.kubernetes.io/conditions: '[{"type":"AbleToScale","status":"True","lastTransitionTime":"2022-02-08T12:33:21Z","reason":"SucceededGetScale","message":"the
+        HPA controller was able to get the target''s current scale"},{"type":"ScalingActive","status":"False","lastTransitionTime":"2022-02-08T12:33:21Z","reason":"FailedGetResourceMetric","message":"the
+        HPA was unable to compute the replica count: failed to get cpu utilization:
+        unable to get metrics for resource cpu: unable to fetch metrics from resource
+        metrics API: the server could not find the requested resource (get pods.metrics.k8s.io)"}]'
+    creationTimestamp: "2022-02-08T12:33:05Z"
+    name: theta-deployment
+    namespace: default
+    resourceVersion: "20052"
+    uid: 96c3d79e-18be-4de0-a3d1-df2c366ab82b
+  spec:
+    maxReplicas: 10
+    minReplicas: 1
+    scaleTargetRef:
+      apiVersion: apps/v1
+      kind: Deployment
+      name: theta-deployment
+    targetCPUUtilizationPercentage: 50
+  status:
+    currentReplicas: 4
+    desiredReplicas: 0
+kind: List
+metadata:
+  resourceVersion: ""
+  selfLink: ""

@@ -1,0 +1,7 @@
+apiVersion: "sepulkarium.ap/v1"
+kind: Sepulka
+metadata:
+  name: sepulka-example
+spec:
+  tag: "1"
+  replicas: 5

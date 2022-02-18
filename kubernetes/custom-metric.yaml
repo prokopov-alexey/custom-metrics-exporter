@@ -1,0 +1,51 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: metrics-exporter
+  labels:
+    app: metrics-exporter
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: metrics-exporter
+  template:
+    metadata:
+      labels:
+        app: metrics-exporter
+    spec:
+      containers:
+      - image: avprokopov/my-custom-metrics-exporter
+        name: metrics-exporter
+        ports:
+        - containerPort: 4443
+          name: https
+          protocol: TCP
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: metrics-exporter
+spec:
+  ports:
+  - port: 443
+    name: https
+    protocol: TCP
+    targetPort: 4443
+  selector:
+    app: metrics-exporter
+---
+apiVersion: apiregistration.k8s.io/v1
+kind: APIService
+metadata:
+  name: v1beta1.custom.metrics.k8s.io
+spec:
+  insecureSkipTLSVerify: true
+  group: custom.metrics.k8s.io
+  groupPriorityMinimum: 1000
+  versionPriority: 5
+  service:
+    name: metrics-exporter
+    namespace: default
+  version: v1beta1
