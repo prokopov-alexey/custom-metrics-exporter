@@ -13,21 +13,21 @@ spec:
   - type: Object
     object:
       metric:
-        name: points
+        name: quartz-queue
       describedObject:
         apiVersion: /v1beta1
         kind: Service
         name: metrics-exporter
       target:
         type: Value
-        value: 10
+        value: 2000
   behavior:
     scaleDown:
-      stabilizationWindowSeconds: 300
+      stabilizationWindowSeconds: 0
       policies:
       - type: Percent
         value: 100
-        periodSeconds: 15
+        periodSeconds: 1
     scaleUp:
       stabilizationWindowSeconds: 0
       policies:

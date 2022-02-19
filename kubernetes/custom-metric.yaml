@@ -1,3 +1,17 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: metrics-exporter-config
+  labels:
+    app: metrics-exporter
+data:
+  DB_POSTGRES_HOST: postgres
+  DB_POSTGRES_PORT: "5432"
+  DB_USER: admin
+  DB_PASS: test123
+  DB_NAME: quartz
+  DB_SCHEMA: public
+---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -21,7 +35,9 @@ spec:
         - containerPort: 4443
           name: https
           protocol: TCP
-
+        envFrom:
+          - configMapRef:
+              name: metrics-exporter-config
 ---
 apiVersion: v1
 kind: Service
@@ -49,3 +65,44 @@ spec:
     name: metrics-exporter
     namespace: default
   version: v1beta1
+---
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: worker-hpa
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: worker-deployment 
+  minReplicas: 1
+  maxReplicas: 5
+  metrics:
+  - type: Object
+    object:
+      metric:
+        name: quartz-queue
+      describedObject:
+        apiVersion: /v1beta1
+        kind: Service
+        name: metrics-exporter
+      target:
+        type: Value
+        value: 2000
+  behavior:
+    scaleDown:
+      stabilizationWindowSeconds: 0
+      policies:
+      - type: Percent
+        value: 100
+        periodSeconds: 1
+    scaleUp:
+      stabilizationWindowSeconds: 0
+      policies:
+      - type: Percent
+        value: 100
+        periodSeconds: 15
+      - type: Pods
+        value: 4
+        periodSeconds: 15
+      selectPolicy: Max
